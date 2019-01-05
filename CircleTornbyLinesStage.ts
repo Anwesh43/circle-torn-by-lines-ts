@@ -6,6 +6,7 @@ const scDiv : number = 0.51
 const strokeFactor : number = 90
 const sizeFactor : number = 3
 const color : string = "#673AB7"
+const delay : number = 20
 
 const maxScale : Function = (scale : number, i : number, n : number) : number => Math.max(0, scale - i / n)
 const divideScale : Function = (scale : number, i : number, n : number) : number => Math.min(1/n, maxScale(scale, i, n)) * n
@@ -14,7 +15,7 @@ const mirrorValue : Function = (scale : number, a : number, b : number) : number
     const k = 1 - scaleFactor(scale)
     return (1 - k) / a + k / b
 }
-const updateScale : Function = (scale : number, dir : number, a : number, b : number) => mirrorValue(scale, lines, 1) * dir
+const updateScale : Function = (scale : number, dir : number, a : number, b : number) => mirrorValue(scale, lines, 1) * dir * scGap
 
 const drawCTLNode : Function = (context : CanvasRenderingContext2D, i : number, scale : number) => {
     const gap : number = h / (nodes + 1)
@@ -26,19 +27,21 @@ const drawCTLNode : Function = (context : CanvasRenderingContext2D, i : number, 
     const rSize : number = size * 0.8
     const sc1 : number = divideScale(scale, 0, 2)
     const sc2 : number = divideScale(scale, 1, 2)
-    const xGap : number = size / (lines + 1)
+    const xGap : number = 2 * size / (lines + 1)
     context.save()
     context.translate(w/2, gap * (i + 1))
     context.rotate(Math.PI / 2 * sc2)
-    context.fillRect(-rSize, -rSize, rSize, rSize)
+    context.fillRect(-rSize, -rSize,  2 * rSize, 2 * rSize)
     for (var j = 0; j < lines; j++) {
         const sc : number = divideScale(sc1, j, lines)
         context.save()
-        context.translate(-size, xGap * (j + 1))
-        context.beginPath()
-        context.moveTo(0, 0)
-        context.lineTo(2 * size * sc, 0)
-        context.stroke()
+        context.translate(-size, xGap * (j + 1) - size)
+        if (sc > 0) {
+            context.beginPath()
+            context.moveTo(0, 0)
+            context.lineTo(2 * size * sc, 0)
+            context.stroke()
+        }
         context.restore()
     }
     context.restore()
@@ -85,6 +88,7 @@ class State {
 
     update(cb : Function) {
         this.scale += updateScale(this.scale, this.dir, lines, 1)
+        console.log(this.scale)
         if (Math.abs(this.scale - this.prevScale) > 1) {
             this.scale = this.prevScale + this.dir
             this.dir = 0
@@ -108,7 +112,7 @@ class Animator {
     start(cb : Function) {
         if (!this.animated) {
           this.animated = true
-          this.interval = setInterval(cb, 50)
+          this.interval = setInterval(cb, delay)
         }
     }
 

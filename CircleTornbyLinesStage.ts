@@ -182,3 +182,24 @@ class CircleTornbyLine {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+    ctl : CircleTornbyLine = new CircleTornbyLine()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.ctl.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.ctl.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.ctl.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}

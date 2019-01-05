@@ -47,6 +47,7 @@ const drawCTLNode : Function = (context : CanvasRenderingContext2D, i : number, 
 class CircleTornbyLineStage {
     canvas : HTMLCanvasElement = document.createElement('canvas')
     context : CanvasRenderingContext2D
+    renderer : Renderer = new Renderer()
 
     initCanvas() {
         this.canvas.width = w
@@ -58,11 +59,14 @@ class CircleTornbyLineStage {
     render() {
         this.context.fillStyle = '#BDBDBD'
         this.context.fillRect(0, 0, w, h)
+        this.renderer.render(this.context)
     }
 
     handleTap() {
         this.canvas.onmousedown = () => {
-
+            this.renderer.handleTap(() => {
+                this.render()
+            })
         }
     }
 
